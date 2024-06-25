@@ -1,0 +1,54 @@
+---
+- hosts: all
+  vars:
+    a: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz
+    b: https://dlcdn.apache.org/maven/maven-3/3.9.7/binaries/apache-maven-3.9.7-bin.tar.gz
+    c: git
+  tasks:
+    - name: install_tomcat
+      get_url:
+          url: "{{ a }}"
+          dest: /opt
+    - name: extract_tomcat
+      unarchive:
+          src: "{{ a }}"
+          dest: /opt/
+          remote_src: yes
+    - name: rename tomcat
+      command: mv /opt/apache-tomcat-9.0.89 /opt/tomcat
+    - name: start_tomcat
+      command: nohup /opt/tomcat/bin/startup.sh
+    - name: install_maven
+      get_url:
+          url: "{{ b }}"
+          dest: /opt
+    - name: extract_maven
+      unarchive:
+          src:  "{{ b }}"
+          dest: /opt
+          remote_src: yes
+    - name: rename_maven
+      command: mv /opt/apache-maven-3.9.7 /opt/maven
+    - name: install_git
+      yum:
+        name: "{{ c }}"
+        state: installed
+
+- hosts: all
+  tasks:
+     - name: clone_repo
+       git:
+        repo: https://github.com/YashJha1/hello-world-jenkins-github-integrate.git
+        dest: /opt/hello-world-jenkins-github-integrate
+     - name: create_file
+       file:
+         path: /etc/profile.d/maven.sh
+         state: touch
+     - name: copy_content
+       copy:
+         content: M2_HOME='/opt/maven' PATH="$M2_HOME/bin:$PATH"
+         dest: /etc/profile.d/maven.sh
+     - name: build_code
+       shell: cd /opt/hello-world-jenkins-github-integrate; mvn clean install
+     - name: deploy
+       command: cp /opt/hello-world-jenkins-github-integrate/webapp/target/webapp.war /opt/tomcat/webapps/test.war
