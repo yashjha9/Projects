@@ -4,7 +4,12 @@
     a: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz
     b: https://dlcdn.apache.org/maven/maven-3/3.9.7/binaries/apache-maven-3.9.7-bin.tar.gz
     c: git
+    d: java-17
   tasks:
+    - name: install_java-17
+      yum:
+        name: "{{ d }}"
+        state:  installed
     - name: install_tomcat
       get_url:
           url: "{{ a }}"
@@ -33,6 +38,7 @@
       yum:
         name: "{{ c }}"
         state: installed
+    
 
 - hosts: all
   tasks:
