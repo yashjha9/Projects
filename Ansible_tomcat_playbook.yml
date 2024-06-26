@@ -21,6 +21,10 @@
           remote_src: yes
     - name: rename tomcat
       command: mv /opt/apache-tomcat-9.0.89 /opt/tomcat
+    - name: change_permissions_of_script
+      file: 
+        path: /opt/tomcat/bin/startup.sh
+        mode: '0777'
     - name: start_tomcat
       command: nohup /opt/tomcat/bin/startup.sh
     - name: install_maven
